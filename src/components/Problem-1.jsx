@@ -9,6 +9,44 @@ const Problem1 = () => {
         setShow(val);
     }
 
+    const inputHandler = e => {
+        setState({ ...state, [e.target.name]: e.target.value })
+    }
+
+    const submitHandler = e => {
+        e.preventDefault()
+        let statedata = [...data];
+
+        setData([...data, state])
+    }
+
+    console.log(data);
+
+    const activeData = data.map((item, idx) => {
+        if (item.status.toLowerCase() === 'active') {
+            return <tr key={idx}>
+                <td scope="col">{item.name}</td>
+                <td scope="col">{item.status}</td>
+            </tr>
+        }
+    })
+    const completeData = data.map((item, idx) => {
+        if (item.status.toLowerCase() === 'completed') {
+            return <tr key={idx}>
+                <td scope="col">{item.name}</td>
+                <td scope="col">{item.status}</td>
+            </tr>
+        }
+    })
+    const otherData = data.map((item, idx) => {
+        if (item.status.toLowerCase() !== 'active' && item.status.toLowerCase() !== 'completed') {
+            return <tr key={idx}>
+                <td scope="col">{item.name}</td>
+                <td scope="col">{item.status}</td>
+            </tr>
+        }
+    })
+
     return (
 
         <div className="container">
@@ -17,13 +55,13 @@ const Problem1 = () => {
                 <div className="col-6 ">
                     <form className="row gy-2 gx-3 align-items-center mb-4">
                         <div className="col-auto">
-                            <input type="text" className="form-control" placeholder="Name" />
+                            <input type="text" className="form-control" placeholder="Name" name='name' onChange={inputHandler} />
                         </div>
                         <div className="col-auto">
-                            <input type="text" className="form-control" placeholder="Status" />
+                            <input type="text" className="form-control" placeholder="Status" name='status' onChange={inputHandler} />
                         </div>
                         <div className="col-auto">
-                            <button type="submit" className="btn btn-primary">Submit</button>
+                            <button type="submit" className="btn btn-primary" onClick={submitHandler}>Submit</button>
                         </div>
                     </form>
                 </div>
@@ -48,7 +86,9 @@ const Problem1 = () => {
                             </tr>
                         </thead>
                         <tbody>
-
+                            {activeData}
+                            {completeData}
+                            {otherData}
                         </tbody>
                     </table>
                 </div>
