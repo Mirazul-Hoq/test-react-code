@@ -86,9 +86,12 @@ const Problem1 = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {activeData}
-                            {completeData}
-                            {otherData}
+                            { show === 'all' && activeData }
+                            { show === 'all' && completeData }
+                            { show === 'all' && otherData }
+                            { show === 'active' && activeData }
+                            { show === 'completed' && completeData }
+                            { (show !== 'all' && show !== 'completed' && show !== 'active') && otherData }
                         </tbody>
                     </table>
                 </div>

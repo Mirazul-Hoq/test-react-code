@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import ModalC from './ModalC'
 
 function Example({ status, toggleModalB, toggleModalA, close, }) {
     const [open, setOpen] = useState(false)
     const toggleOpen = () => setOpen(prev => !prev)
     const [state, setState] = useState([]);
-    // console.log(state.results);
     const [search, setSearch] = useState()
-    console.log(search);
+    const [country, setCountry] = useState()
 
     const [isLoading, setIsLoading] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const checkToggler = () => setIsChecked(prev => !prev)
 
+    const countryHandler = data => {
+        setCountry(data)
+        toggleOpen()
+    }
     useEffect(() => {
 
         if (status == true) {
@@ -41,39 +45,40 @@ function Example({ status, toggleModalB, toggleModalA, close, }) {
     }, [status]);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            const apiUrl = `https://contact.mediusware.com/api/country-contacts/${search ? search : 'United States'}/`;
+        if (search) {
+            const timer = setTimeout(() => {
+                const apiUrl = `https://contact.mediusware.com/api/country-contacts/United States/?search=${search}`;
 
-            fetch(apiUrl)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-                    setState(data);
-                    setIsLoading(false);
-                })
-                .catch((error) => {
-                    console.error('There was a problem with the fetch operation:', error);
-                    setIsLoading(false);
-                });
-        }, 5000);
+                fetch(apiUrl)
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        setState(data);
+                        setIsLoading(false);
+                    })
+                    .catch((error) => {
+                        console.error('There was a problem with the fetch operation:', error);
+                        setIsLoading(false);
+                    });
+            }, 3000);
 
-        return () => clearTimeout(timer);
+            return () => clearTimeout(timer);
+        }
     }, [search])
-
+    console.log(search);
 
     const data = isChecked ? state.results.filter(item => Number(item.country.id) % 2 === 0) : state.results;
     const inputHandler = e => {
-        console.log(e.target.value);
         setSearch(e.target.value)
     }
     const submitHandler = (e) => {
         e.preventDefault()
 
-        const apiUrl = `https://contact.mediusware.com/api/country-contacts/${search ? search : 'United States'}/`;
+        const apiUrl = `https://contact.mediusware.com/api/country-contacts/United States/?search=${search}`;
 
         fetch(apiUrl)
             .then((response) => {
@@ -94,13 +99,9 @@ function Example({ status, toggleModalB, toggleModalA, close, }) {
 
     return (
         <>
-            {/* <Button variant="primary" onClick={toggleModalB}>
-                Launch demo modal
-            </Button> */}
-
-            <Modal show={status} onHide={toggleModalB}>
+            <Modal show={status} onHide={close}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Modal heading</Modal.Title>
+                    <Modal.Title>US contact list</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form className="row gy-2 gx-3 align-items-center mb-4">
@@ -119,7 +120,7 @@ function Example({ status, toggleModalB, toggleModalA, close, }) {
                     {isLoading ? '' : <table className="table table-striped ">
                         <thead>
                             {data.map((item, i) =>
-                                <tr key={i}>
+                                <tr key={i} style={{ cursor: 'pointer' }} onClick={e => countryHandler(item)}>
                                     <th scope="col">{item.country.id}</th>
                                     <th scope="col">{item.country.name}</th>
                                     <th scope="col">{item.phone}</th>
@@ -131,25 +132,22 @@ function Example({ status, toggleModalB, toggleModalA, close, }) {
                     </table>}
                 </Modal.Body>
                 <Modal.Footer>
-                    {/* <Button variant="secondary" onClick={toggleModalB}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={toggleModalB}>
-                        Save Changes
-                    </Button> */}
-                    <div className="checkbox-wrapper">
-                        <label>
-                            <input type="checkbox" checked={isChecked} onChange={checkToggler} />
-                            <span>Only Even</span>
-                        </label>
-                    </div>
-                    <div className="d-flex justify-content-center gap-3">
-                        <button className="btn btn-lg btn-outline-primary" style={{ color: '#46139f !important' }} type="button" onClick={toggleModalA} >All Contacts</button>
-                        <button className="btn btn-lg btn-outline-warning" type="button" onClick={toggleModalB} >US Contacts</button>
-                        <button className="btn btn-lg btn-outline-warning" type="button" onClick={close} >Close</button>
+                    <div className='w-100 d-flex justify-content-between'>
+                        <div className="checkbox-wrapper">
+                            <label>
+                                <input type="checkbox" checked={isChecked} onChange={checkToggler} />{" "}
+                                <span>Only Even</span>
+                            </label>
+                        </div>
+                        <div className="d-flex justify-content-center gap-3">
+                            <button style={{ background: '#46139f' }} className="btn text-white" type="button" onClick={toggleModalA}>All Contacts</button>
+                            <button style={{ background: '#ff7f50' }} className="btn text-white" type="button" onClick={toggleModalB}>US Contacts</button>
+                            <button style={{ border: '#46139f', background: '#fff' }} onClick={close}>Close</button>
+                        </div>
                     </div>
                 </Modal.Footer>
             </Modal>
+            {open && <ModalC status={open} close={toggleOpen} data={country} />}
         </>
     );
 }
